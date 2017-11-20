@@ -11,10 +11,22 @@ class EventStore extends EventEmitter{
         this.loading = false;
         this.error = false;
         this.new_event_hash = null;
+        this.current_event = null;
+        this.joined = false;
+    }
+
+
+    getCurrentEvent(){
+        return this.current_event;
     }
 
     getEvents(){
         return this.events;
+    }
+
+
+    getJoinStatus(){
+        return this.joined;
     }
 
     getStatus(){
@@ -34,6 +46,55 @@ class EventStore extends EventEmitter{
         console.log("event store",action);
 
         switch(action.type){
+            case 'JOIN_EVENT':{
+                this.loading = true;
+                this.error = false;
+                this.joined = false;
+                this.emit("change");
+                break;
+            }
+
+
+            case 'JOIN_EVENT_SUCCESS':{
+                this.loading = false;
+                this.error = false;
+                this.joined = true;
+                this.emit("change");
+                break;
+            }
+
+
+            case 'JOIN_EVENT_ERROR':{
+                this.loading = false;
+                this.error = true;
+                this.joined =false;
+                this.emit("change")
+                break;
+            }
+
+            
+            case 'FETCH_EVENT':{
+                this.loading = true;
+                this.error = false;
+                this.emit("change");
+                break
+            }
+
+            case 'FETCHED_EVENT':{
+                this.loading = false;
+                this.error = false;
+                this.current_event = action.payload;
+                this.emit("change");
+                break;
+            }
+
+            case 'FETCH_EVENT_ERROR':{
+                this.loading = false;
+                this.error = true;
+                this.emit("change");
+                break;
+            }
+            
             case 'CREATING_EVENT':{
                 this.loading = true;
                 this.error = false;

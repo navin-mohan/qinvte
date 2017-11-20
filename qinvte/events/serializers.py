@@ -21,6 +21,7 @@ class ResponseListSerializer(serializers.ModelSerializer):
 
 class UserResponseSerializer(serializers.ModelSerializer):
 
+
     class Meta:
         model = EventResponse
         fields = (
@@ -29,6 +30,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
             'last_name',
             'email'
         )
+
 
 
         
@@ -50,19 +52,19 @@ class EventListSerializer(serializers.ModelSerializer):
 
 
 
-class EventDetailSerializer(serializers.ModelSerializer):
+# class EventDetailSerializer(serializers.ModelSerializer):
 
 
-    class Meta:
-        model = Event
+#     class Meta:
+#         model = Event
 
-        fields = (
-                'title',
-                'date',
-                'event_desc',
-                'location',
-                'creator'
-            )
+#         fields = (
+#                 'title',
+#                 'date',
+#                 'event_desc',
+#                 'location',
+#                 'creator'
+#             )
 
 
 
@@ -110,7 +112,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = (
             'created',
             'hash_id',
-            'title'
+            'title',
+            'id'
         )
 
         extra_kwargs = {

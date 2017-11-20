@@ -5,7 +5,52 @@ import TextField from 'material-ui/TextField';
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
 import FontIcon from 'material-ui/FontIcon';
+import CircularProgress from 'material-ui/CircularProgress';
 
+
+import EventStore from '../stores/event-store';
+import *  as EventActions from '../actions/event-actions';
+
+
+const EventCard = (props) => (
+<Card>
+    <CardHeader
+    title={props.title}
+    subtitle={props.date + " @ " + props.location}
+    textStyle={{
+        paddingRight:0
+    }}
+    actAsExpander={!props.showForm}
+    showExpandableButton={!props.showForm}
+    />
+    {!props.showForm && <CardActions>
+    <RaisedButton 
+        label="Join Now"
+        secondary={true}
+        onClick={props.handleJoin} />
+    </CardActions>}
+    {props.showForm && <CardText>
+            <TextField
+                hintText="your email address"
+                floatingLabelText="Email"
+                onChange={props.form.email}
+                /><br />
+            <TextField
+                hintText="your full name"
+                floatingLabelText="Name"
+                onChange={props.form.name}
+                /><br />
+            <RaisedButton 
+                label="Join"
+                secondary={true}
+                onClick={props.form.submit}
+                    />
+        </CardText>}
+    {!props.showForm && <CardText expandable={true} >
+        {props.eventDesc}
+    </CardText>}
+</Card>
+);
 
 export default class JoinEventPage extends Component{
 
@@ -14,16 +59,67 @@ export default class JoinEventPage extends Component{
 
         this.state = {
             showForm: false,
-            eventTitle: "Thor Movie at Lulu Mall",
-            eventDate: "12 Dec 2017",
-            eventLoc: "LuLu Mall, Edapally",
-            eventDesc:`Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
-            Donec vulputate interdum sollicitudin. Nunc lacinia auctor quam sed pellentesque.
-            Aliquam dui mauris, mattis quis lacus id, pellentesque lobortis odio. `
+            formData:{},
+            event: {},
+            error:false,
+            hash: props.match.params.id,
+            loading: true,
         };
 
+
+        this.form = {
+            email: (e,n) => this.setState({
+                ...this.state,
+                formData:{
+                    ...this.state.formData,
+                    email: n
+                }
+            }),
+            name: (e,n) => this.setState({
+                ...this.state,
+                formData:{
+                    ...this.state.formData,
+                    name: n
+                }
+            }),
+            submit: this.handleJoinSubmit.bind(this)
+        };
+
+        console.log("hash",this.state.hash);
         this.handleJoin = this.handleJoin.bind(this);
+        this.handleEventStoreChange = this.handleEventStoreChange.bind(this);
+    }
+
+    handleJoinSubmit(){
+        const event = EventStore.getCurrentEvent().id;
+        EventActions.joinEvent(event,this.state.formData.name,this.state.formData.email);
+    }
+
+    componentWillMount(){
+        EventStore.on("change",this.handleEventStoreChange);
+        if(this.state.hash){
+            EventActions.fetchEvent(this.state.hash);
+        }
+    }
+
+
+    componentWillUnmount(){
+        EventStore.removeListener(this.handleEventStoreChange);
+    }
+
+    handleEventStoreChange(){
+        const {loading,error} = EventStore.getStatus();
+        const event = EventStore.getCurrentEvent();
+        if(event){
+            event.date = event.date.slice(0,10);            
+        }
+        console.log("new event",event)
+        this.setState({
+            ...this.state,
+            loading,
+            error,
+            event
+        });
     }
 
 
@@ -36,9 +132,6 @@ export default class JoinEventPage extends Component{
     
     render(){
 
-        const chipStyle = {
-            margin: 4
-        };
 
         return (
             <div className="container-fluid">
@@ -48,58 +141,17 @@ export default class JoinEventPage extends Component{
                 </div>
                 <br/>
                 <div className="col-sm-12">
-                <Card>
-                    <CardHeader
-                    title={this.state.eventTitle}
-                    subtitle={this.state.eventDate + " @ " + this.state.eventLoc}
-                    textStyle={{
-                        paddingRight:0
-                    }}
-                    actAsExpander={!this.state.showForm}
-                    showExpandableButton={!this.state.showForm}
-                    />
-                    {!this.state.showForm && <CardActions>
-                    <RaisedButton 
-                        label="Join Now"
-                        secondary={true}
-                        onClick={this.handleJoin} />
-                    </CardActions>}
-                    {this.state.showForm && <CardText>
-                            <TextField
-                                hintText="your email address"
-                                floatingLabelText="Email"
-                                /><br />
-                            <TextField
-                                hintText="your full name"
-                                floatingLabelText="Name"
-                                /><br />
-                            <RaisedButton 
-                                label="Join"
-                                secondary={true}
-                                 />
-                        </CardText>}
-                    {!this.state.showForm && <CardText expandable={true} >
-                        <div className="d-flex flex-row p-2 chips">
-                            <div className="p-2">
-                                <Chip
-                                    style={chipStyle}
-                                >
-                                <Avatar icon={<FontIcon className="material-icons">location_on</FontIcon>} />
-                                <a href="#">LuLu Mall, Edapally</a>
-                                </Chip>
-                            </div>
-                            <div className="p-2">
-                                <Chip
-                                    style={chipStyle}
-                                >
-                                <Avatar size={24}>8.2</Avatar>
-                                <a href="#">Thor: Ragnarok</a>
-                                </Chip>
-                            </div>
-                        </div>
-                        {this.state.eventDesc}
-                    </CardText>}
-                </Card>
+                    {this.state.loading && !this.state.error && !this.state.event?<CircularProgress/>:<EventCard
+                        showForm={this.state.showForm}
+                        title={this.state.event.title}
+                        location={this.state.event.location}
+                        date={this.state.event.date}
+                        eventDesc={this.state.event.event_desc}
+                        handleJoin={() => {this.handleJoin();console.log("join clicked")}}
+                        form={this.form}
+                    />}
+
+                    {this.state.error && <h2>Something went wrong!</h2>}
                 </div>
 
             </div>

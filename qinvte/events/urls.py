@@ -13,6 +13,9 @@ urlpatterns = [
         r'^events/$',
         views.CreateEvent.as_view()
     ),
+    # url(
+    #     r'^event'
+    # ),
     url(
         r'^response/$',
         views.UserResponse.as_view(),

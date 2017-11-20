@@ -3,6 +3,52 @@ import * as EndPoints from '../api-endpoints';
 import Dispatcher from '../dispatcher';
 
 
+export function joinEvent(event,name,email){
+    Dispatcher.dispatch({
+        type: 'JOIN_EVENT'
+    })
+    console.log("join event event",event)
+    name = name.split(" ");
+    const first_name = name[0];
+    const last_name  = name[0];
+    axios.post(EndPoints.joinEvent,{
+        event,
+        first_name,
+        last_name,
+        email
+    },{
+        headers:{
+            'Content-Type':'application/json'
+        }
+    })
+}
+
+
+export function fetchEvent(hash){
+    Dispatcher.dispatch({
+        type: 'FETCH_EVENT'
+    })
+
+    axios.get(EndPoints.createEvent + hash + '/',{
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(({data}) => {
+        Dispatcher.dispatch({
+            type: 'FETCHED_EVENT',
+            payload: data
+        })
+    })
+    .catch((error) => {
+        Dispatcher.dispatch({
+            type:'FETCH_EVENT_ERROR',
+            error
+        })
+    });
+} 
+
+
 export function createEvent(data,token){
     Dispatcher.dispatch({
         type: "CREATING_EVENT"
@@ -64,3 +110,4 @@ export function fetchEvents(user_id,token){
         });
     });
 }
+

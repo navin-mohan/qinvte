@@ -44,6 +44,7 @@ export default class CreateEventPage extends Component{
         this.dummyAsync = this.dummyAsync.bind(this);
         this.handleNext = this.handleNext.bind(this);
         this.handlePrev = this.handlePrev.bind(this);
+        this.handleEventStoreChange = this.handleEventStoreChange.bind(this);
 
         this.formHandlers = {
             name: (e,n) => {
@@ -246,7 +247,8 @@ export default class CreateEventPage extends Component{
     }
 
     handleConfirm(){
-        if(this.state.finished){
+        console.log("token",UserStore.getToken())
+        if(this.state.stepIndex == 2){
             EventActions.createEvent({
                 title: this.state.eventName,
                 date: this.state.eventDate,

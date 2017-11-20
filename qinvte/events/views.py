@@ -2,12 +2,14 @@ from events.models import Event,EventResponse
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
 
-from events.serializers import EventSerializer,ResponseListSerializer,UserResponseSerializer,EventDetailSerializer,CreateEventSerializer
+from events.serializers import EventSerializer,ResponseListSerializer,UserResponseSerializer,CreateEventSerializer
 
 class EventDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
 
     lookup_field = 'hash_id'
+
+    permission_classes = []
 
     def get_queryset(self):
         return Event.objects.all().filter(hash_id=self.kwargs['hash_id'])
