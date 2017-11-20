@@ -1,0 +1,21 @@
+.banner{
+    background-image: url('/img/banner-bg.jpg');
+    background-repeat: no-repeat;
+    background-position: center 40%;
+    background-size: cover;
+    height: 300px;
+    padding-top: 100px;
+    filter:brightness(80%);
+}
+
+
+.details{
+    padding-top: 30px;
+    background-color: #eee;
+}
+@media (min-width:768px){
+    .banner{
+        height: 500px;
+        padding-top: 200px;
+    }
+}

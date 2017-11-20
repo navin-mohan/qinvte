@@ -1,0 +1,26 @@
+.link-spot{
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 0 auto;
+    border-radius: 4px;
+    background-color: #eee;
+    border: 1px solid rgb(236, 215, 215);
+}
+
+.tooltip-link{
+    position: absolute;
+    font-size: small;
+    color: #fff;
+    display: inline-block;
+    margin-left: 5px;
+    padding: 5px;
+    top: 2px;
+    border-radius: 4px;
+    background: #6f656587;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.link-container:hover .tooltip-link{
+    opacity: 1;
+}
