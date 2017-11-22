@@ -13,6 +13,7 @@ class EventStore extends EventEmitter{
         this.new_event_hash = null;
         this.current_event = null;
         this.joined = false;
+        this.responses = [];
     }
 
 
@@ -76,6 +77,7 @@ class EventStore extends EventEmitter{
             case 'FETCH_EVENT':{
                 this.loading = true;
                 this.error = false;
+                this.responses = [];
                 this.emit("change");
                 break
             }
@@ -84,6 +86,7 @@ class EventStore extends EventEmitter{
                 this.loading = false;
                 this.error = false;
                 this.current_event = action.payload;
+                this.responses = this.current_event.responses;
                 this.emit("change");
                 break;
             }
@@ -91,6 +94,7 @@ class EventStore extends EventEmitter{
             case 'FETCH_EVENT_ERROR':{
                 this.loading = false;
                 this.error = true;
+                this.responses = [];
                 this.emit("change");
                 break;
             }

@@ -10,7 +10,7 @@ export function joinEvent(event,name,email){
     console.log("join event event",event)
     name = name.split(" ");
     const first_name = name[0];
-    const last_name  = name[0];
+    const last_name  = name[1];
     axios.post(EndPoints.joinEvent,{
         event,
         first_name,

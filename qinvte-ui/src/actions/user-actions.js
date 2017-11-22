@@ -72,9 +72,7 @@ export function authenicate(username,password){
     .then( ({data}) => {
         Dispatcher.dispatch({
             type: 'AUTH_SUCCESS',
-            payload: {
-                token: data.token
-            }
+            payload: data
         })
     })
     .catch( err => Dispatcher.dispatch({

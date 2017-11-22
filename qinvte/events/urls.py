@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 from events import views
-from rest_framework.authtoken import views as auth
+# from rest_framework.authtoken import views as auth
 
 urlpatterns = [
     url(
@@ -23,7 +23,7 @@ urlpatterns = [
     ),
     url(
         r'^auth/$',
-        auth.obtain_auth_token
+        views.CustomObtainAuthToken.as_view()
     ),
     url(
         r'^response/(?P<event>[0-9]+)/$',

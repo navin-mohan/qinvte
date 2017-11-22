@@ -11,6 +11,7 @@ class UserStore extends EventEmitter{
         this.token = null;
         this.error = false;
         this.progress = false;
+        this.user_id = null;
         this.checkLocalStorage();
     }
 
@@ -21,19 +22,23 @@ class UserStore extends EventEmitter{
     }
     checkLocalStorage(){
         const token = localStorage.getItem('auth-token');
-        if(token){
+        const user_id = localStorage.getItem('user-id');
+        if(token && user_id){
             this.authenticated = true;
             this.token = token;
+            this.user_id = user_id;
             this.emit("change");
         }
     }
 
     setLocalStorage(){
         localStorage.setItem("auth-token",this.token);
+        localStorage.setItem("user-id",this.user_id);        
     }
 
     clearLocalStorage(){
         localStorage.removeItem("auth-token");
+        localStorage.removeItem("user-id");
     }
 
     getAuthStatus(){
@@ -41,7 +46,8 @@ class UserStore extends EventEmitter{
             authenticated: this.authenticated,
             token: this.token,
             error: this.error,
-            progress: this.progress
+            progress: this.progress,
+            user_id: this.user_id
         };
     }
 
@@ -52,6 +58,7 @@ class UserStore extends EventEmitter{
                 this.authenticated = true;
                 this.token = action.payload.token;
                 this.progress = false;
+                this.user_id = action.payload.id;
                 this.setLocalStorage();
                 this.emit('change');
                 break;
@@ -61,7 +68,8 @@ class UserStore extends EventEmitter{
                 this.error = true;
                 this.authenticated = false;
                 this.token = null;
-                this.progress = false;                
+                this.progress = false;      
+                this.user_id = null;          
                 this.clearLocalStorage();
                 console.log("Error:",action.payload.err);
                 this.emit('change');                
@@ -72,7 +80,8 @@ class UserStore extends EventEmitter{
                 this.error = false;
                 this.authenticated = false;
                 this.token = null;
-                this.progress = true;                
+                this.progress = true;     
+                this.user_id = null;           
                 this.emit('change');                
                 break;
             }
@@ -81,7 +90,8 @@ class UserStore extends EventEmitter{
                 this.error = false;
                 this.authenticated = false;
                 this.token = '';
-                this.progress = false;    
+                this.progress = false;
+                this.user_id = null;    
                 this.clearLocalStorage();            
                 this.emit("change");
                 break;

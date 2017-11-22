@@ -103,7 +103,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
     responses = ResponseListSerializer(many=True,read_only=True)
 
-
+    id = serializers.ReadOnlyField()
 
     class Meta:
         model = Event

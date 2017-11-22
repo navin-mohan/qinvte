@@ -6,51 +6,54 @@ import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
 import FontIcon from 'material-ui/FontIcon';
 import CircularProgress from 'material-ui/CircularProgress';
-
+import ResponseList from '../components/response-list';
 
 import EventStore from '../stores/event-store';
+import UserStore from '../stores/user-store';
 import *  as EventActions from '../actions/event-actions';
 
 
-const EventCard = (props) => (
-<Card>
-    <CardHeader
-    title={props.title}
-    subtitle={props.date + " @ " + props.location}
-    textStyle={{
-        paddingRight:0
-    }}
-    actAsExpander={!props.showForm}
-    showExpandableButton={!props.showForm}
-    />
-    {!props.showForm && <CardActions>
-    <RaisedButton 
-        label="Join Now"
-        secondary={true}
-        onClick={props.handleJoin} />
-    </CardActions>}
-    {props.showForm && <CardText>
-            <TextField
-                hintText="your email address"
-                floatingLabelText="Email"
-                onChange={props.form.email}
-                /><br />
-            <TextField
-                hintText="your full name"
-                floatingLabelText="Name"
-                onChange={props.form.name}
-                /><br />
-            <RaisedButton 
-                label="Join"
-                secondary={true}
-                onClick={props.form.submit}
-                    />
+const EventCard = (props) => {
+
+    return <Card>
+        <CardHeader
+        title={props.title}
+        subtitle={props.date + " @ " + props.location}
+        textStyle={{
+            paddingRight:0
+        }}
+        actAsExpander={!props.showForm}
+        showExpandableButton={!props.showForm}
+        />
+        {!props.showForm && <CardActions>
+        <RaisedButton 
+            label="Join Now"
+            secondary={true}
+            onClick={props.handleJoin} />
+        </CardActions>}
+        {props.showForm && <CardText>
+                <TextField
+                    hintText="your email address"
+                    floatingLabelText="Email"
+                    onChange={props.form.email}
+                    /><br />
+                <TextField
+                    hintText="your full name"
+                    floatingLabelText="Name"
+                    onChange={props.form.name}
+                    /><br />
+                <RaisedButton 
+                    label="Join"
+                    secondary={true}
+                    onClick={props.form.submit}
+                    disabled={props.joined}
+                        />
+            </CardText>}
+        {!props.showForm && <CardText expandable={true} >
+            {props.eventDesc}
         </CardText>}
-    {!props.showForm && <CardText expandable={true} >
-        {props.eventDesc}
-    </CardText>}
-</Card>
-);
+    </Card>
+};
 
 export default class JoinEventPage extends Component{
 
@@ -64,6 +67,7 @@ export default class JoinEventPage extends Component{
             error:false,
             hash: props.match.params.id,
             loading: true,
+            joined: false
         };
 
 
@@ -92,7 +96,12 @@ export default class JoinEventPage extends Component{
 
     handleJoinSubmit(){
         const event = EventStore.getCurrentEvent().id;
+        console.log("event id",event);
         EventActions.joinEvent(event,this.state.formData.name,this.state.formData.email);
+        this.setState({
+            ...this.state,
+            joined: true
+        })
     }
 
     componentWillMount(){
@@ -102,6 +111,22 @@ export default class JoinEventPage extends Component{
         }
     }
 
+    renderResponses(){
+        const auth = UserStore.getAuthStatus();
+        console.log("auth",auth,"event",this.state.event);
+        if(auth.authenticated && this.state.event.creator === parseInt(auth.user_id)){
+
+            console.log("responses",this.state.event.responses,"auth",auth);
+            
+            return(
+                <ResponseList 
+                    responses={this.state.event.responses}
+                />
+            );
+        }
+
+        return(<div/>);
+    }
 
     componentWillUnmount(){
         EventStore.removeListener(this.handleEventStoreChange);
@@ -118,7 +143,7 @@ export default class JoinEventPage extends Component{
             ...this.state,
             loading,
             error,
-            event
+            event,
         });
     }
 
@@ -132,6 +157,12 @@ export default class JoinEventPage extends Component{
     
     render(){
 
+        const auth = UserStore.getAuthStatus();
+        // const sameuser = this.state.event.creator === parseInt(auth.user_id);
+        let responses = "";
+        if(!this.state.error && this.state.event){
+            responses = this.renderResponses();       
+        }
 
         return (
             <div className="container-fluid">
@@ -141,7 +172,8 @@ export default class JoinEventPage extends Component{
                 </div>
                 <br/>
                 <div className="col-sm-12">
-                    {this.state.loading && !this.state.error && !this.state.event?<CircularProgress/>:<EventCard
+                    {this.state.loading && !this.state.error && !this.state.event?
+                        <CircularProgress/>:<EventCard
                         showForm={this.state.showForm}
                         title={this.state.event.title}
                         location={this.state.event.location}
@@ -149,9 +181,11 @@ export default class JoinEventPage extends Component{
                         eventDesc={this.state.event.event_desc}
                         handleJoin={() => {this.handleJoin();console.log("join clicked")}}
                         form={this.form}
+                        joined={this.state.joined}
                     />}
 
                     {this.state.error && <h2>Something went wrong!</h2>}
+                    {responses}
                 </div>
 
             </div>
